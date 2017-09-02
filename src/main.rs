@@ -1,88 +1,10 @@
-extern crate rand;
 extern crate num_cpus;
 
-use rand::Rng;
+mod lib;
+
+use lib::deck::*;
+use lib::deck::card::*;
 use std::thread;
-
-#[derive(Debug, Clone, Copy, PartialEq)]
-enum CardSuit {
-    Spades,
-    Hearts,
-    Diamonds,
-    Clubs,
-    Dummy,
-}
-
-#[derive(Debug, Copy)]
-struct Card {
-    suit: CardSuit,
-    value: u32,
-}
-
-impl Card {
-    fn new(suit: CardSuit, value: u32) -> Card {
-        Card {
-            suit: suit,
-            value: value,
-        }
-    }
-}
-
-impl Clone for Card {
-    fn clone(&self) -> Card {
-        Card {
-            suit: self.suit,
-            value: self.value,
-        }
-    }
-}
-
-#[derive(Debug)]
-struct Deck {
-    cards: Vec<Card>,
-}
-
-impl Deck {
-    fn new() -> Deck {
-        let mut new_deck = Deck { cards: Vec::new() };
-
-        for i in 0..52 {
-            let card_value = (i % 13) + 1;
-            let suit_num = i / 13;
-
-            let card_suit = match suit_num {
-                0 => CardSuit::Spades,
-                1 => CardSuit::Hearts,
-                2 => CardSuit::Diamonds,
-                3 => CardSuit::Clubs,
-                _ => panic!("Invalid card value"),
-            };
-            new_deck.cards.push(Card::new(card_suit, card_value));
-        }
-
-        new_deck
-    }
-
-    fn shuffle(&mut self) {
-        rand::thread_rng().shuffle(&mut self.cards);
-    }
-
-    fn split_into(&mut self, number: usize) -> Vec<Deck> {
-        let splits: Vec<Deck> = self.cards
-            .chunks(number)
-            .map(|chunk| Deck { cards: chunk.to_vec() })
-            .collect();
-        splits
-    }
-
-    fn lowest_card(&self, suit: CardSuit) -> Option<Card> {
-        self.cards
-            .iter()
-            .filter(|card| card.suit == suit)
-            .min_by(|a, b| a.value.cmp(&b.value))
-            .map(|card| card.clone())
-    }
-}
 
 fn spades_computation(iterations: usize) -> f64 {
     let mut cards_for_status: Vec<Card> = Vec::with_capacity(iterations);
